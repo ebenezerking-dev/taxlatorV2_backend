@@ -1,4 +1,4 @@
-# Taxlator
+# taxlatorV2_backend
 
 Taxlator is a tax calculation platform with a frontend UI and a backend API.
 
@@ -7,6 +7,5 @@ Taxlator is a tax calculation platform with a frontend UI and a backend API.
 - `taxlatorAPI/` - Backend API (Node/Express/Database-MongoDB)
 
 ## Setup
-1. Clone the repo: `git clone ...`
-2. Install frontend dependencies: `npm install`
-3. Install backend dependencies: `npm install`
+1. Clone the repo: `git clone`
+2. Install backend dependencies: `npm install`
