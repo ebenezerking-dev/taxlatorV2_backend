@@ -46,6 +46,8 @@ export const registerUser = async (
 			id: userId,
 			name: user.name,
 			email: user.email,
+			role: user.role,
+			image: user.image,
 		},
 		token,
 	};
@@ -84,6 +86,8 @@ export const loginUser = async (email: string, password: string) => {
 			id: userId,
 			name: user.name,
 			email: user.email,
+			role: user.role,
+			image: user.image,
 		},
 		token,
 	};
@@ -203,4 +207,4 @@ export const logoutUser = async (userId: string) => {
 		success: true,
 		message: "Logged out successfully",
 	};
-};;
+};
