@@ -2,23 +2,12 @@
 // src/services/auth.service.ts
 // ===============================
 import crypto from "crypto";
-
 import User from "../models/User.js";
-
 import PasswordResetToken from "../models/PasswordResetToken.js";
-
 import { hashPassword, comparePassword } from "../utils/hash.js";
-
-import {
-	generateAccessToken,
-	generateRefreshToken,
-	verifyRefreshToken,
-} from "../utils/jwt.js";
-
+import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
 import { toId } from "../utils/id.js";
-
 import { sendEmail } from "../utils/mailer.js";
-
 import { getIO } from "../socket/index.js";
 
 // =============================== HASH HELPER
@@ -31,12 +20,8 @@ export const registerUser = async (
 	email: string,
 	password: string,
 ) => {
-	const existingUser = await User.findOne({ email });
-	if (existingUser) {
-		const error = new Error("User already exists");
-		(error as any).statusCode = 409;
-		throw error;
-	}
+	const existing = await User.findOne({ email });
+	if (existing) throw new Error("User already exists");
 	const hashedPassword = await hashPassword(password);
 	const user = await User.create({
 		name,
@@ -53,9 +38,9 @@ export const registerUser = async (
 		id: userId,
 		tokenVersion: user.tokenVersion,
 	});
-	const hashedRefreshToken = hashToken(refreshToken);
+	const hashed = hashToken(refreshToken);
 	user.refreshTokens.push({
-		token: hashedRefreshToken,
+		token: hashed,
 		expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
 	});
 	await user.save();
@@ -77,17 +62,9 @@ export const registerUser = async (
 // =============================== LOGIN
 export const loginUser = async (email: string, password: string) => {
 	const user = await User.findOne({ email });
-	if (!user) {
-		const error = new Error("Invalid credentials");
-		(error as any).statusCode = 401;
-		throw error;
-	}
-	const isMatch = await comparePassword(password, user.password);
-	if (!isMatch) {
-		const error = new Error("Invalid credentials");
-		(error as any).statusCode = 401;
-		throw error;
-	}
+	if (!user) throw new Error("Invalid credentials");
+	const match = await comparePassword(password, user.password);
+	if (!match) throw new Error("Invalid credentials");
 	const userId = toId(user._id);
 	const accessToken = generateAccessToken({
 		id: userId,
@@ -98,9 +75,9 @@ export const loginUser = async (email: string, password: string) => {
 		id: userId,
 		tokenVersion: user.tokenVersion,
 	});
-	const hashedRefreshToken = hashToken(refreshToken);
+	const hashed = hashToken(refreshToken);
 	user.refreshTokens.push({
-		token: hashedRefreshToken,
+		token: hashed,
 		expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
 	});
 	await user.save();

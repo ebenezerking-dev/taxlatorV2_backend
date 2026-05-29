@@ -1,6 +1,5 @@
 // =============================== USER SERVICE
 // src/routes/user.service.ts
-
 // ===============================
 import User from "../models/User.js";
 import { hashPassword, comparePassword } from "../utils/hash.js";

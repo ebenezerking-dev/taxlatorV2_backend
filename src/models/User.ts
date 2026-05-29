@@ -1,15 +1,32 @@
-// =============================== USER
+// =============================== USER MODEL
 // src/models/User.ts
+// ===============================
+import mongoose, { Schema, Document } from "mongoose";
+
+// =============================== REFRESH TOKEN TYPE
+export type RefreshToken = {
+	token: string;
+	expiresAt: Date;
+};
+
+// =============================== USER TYPE
+export interface IUser extends Document {
+	name: string;
+	email: string;
+	password: string;
+	role: "USER" | "ADMIN";
+	image: string;
+	tokenVersion: number;
+	refreshTokens: RefreshToken[];
+}
 
 // ===============================
-import mongoose from "mongoose";
-
-// ===============================
-const userSchema = new mongoose.Schema(
+const userSchema = new Schema<IUser>(
 	{
 		name: { type: String, required: true },
 		email: { type: String, required: true, unique: true },
 		password: { type: String, required: true },
+
 		role: {
 			type: String,
 			enum: ["USER", "ADMIN"],
@@ -28,7 +45,7 @@ const userSchema = new mongoose.Schema(
 			default: 0,
 		},
 
-		// =============================== JWT REFRESH TOKENS
+		// =============================== REFRESH TOKENS
 		refreshTokens: [
 			{
 				token: { type: String, required: true },
@@ -39,4 +56,5 @@ const userSchema = new mongoose.Schema(
 	{ timestamps: true },
 );
 
-export default mongoose.model("User", userSchema);
+// ===============================
+export default mongoose.model<IUser>("User", userSchema);

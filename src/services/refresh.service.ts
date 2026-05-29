@@ -1,8 +1,8 @@
-// =============================== REFRESH TOKEN ROTATION SERVICE
+// ===================================== REFRESH TOKEN ROTATION SERVICE
 // src/services/refresh.service.ts
-// ===============================
-import crypto from "crypto";
+// =====================================
 
+import crypto from "crypto";
 import User from "../models/User.js";
 
 import {
@@ -13,13 +13,13 @@ import {
 
 import { toId } from "../utils/id.js";
 
-// ===============================
+// ===================================== HASH HELPER
 const hashToken = (token: string) =>
 	crypto.createHash("sha256").update(token).digest("hex");
 
-// ===============================
+// ===================================== REFRESH ACCESS TOKEN (ROTATION SAFE)
 export const refreshAccessToken = async (refreshToken: string) => {
-	// =============================== VERIFY JWT
+	// =============================== VERIFY TOKEN
 	const decoded = verifyRefreshToken(refreshToken) as {
 		id: string;
 		tokenVersion: number;
@@ -33,18 +33,14 @@ export const refreshAccessToken = async (refreshToken: string) => {
 		throw error;
 	}
 
-	// =============================== CLEAN EXPIRED TOKENS
-	await User.findByIdAndUpdate(user._id, {
-		$pull: {
-			refreshTokens: {
-				expiresAt: { $lt: new Date() },
-			},
-		},
-	});
+	// =============================== CLEAN EXPIRED TOKENS (SAFE MUTATION)
+	user.refreshTokens = user.refreshTokens.filter(
+		(t) => t.expiresAt > new Date(),
+	) as any;
 
 	const hashedOldToken = hashToken(refreshToken);
 
-	// =============================== CHECK TOKEN EXISTS
+	// =============================== VALIDATE TOKEN EXISTS
 	const tokenExists = user.refreshTokens.some(
 		(t) => t.token === hashedOldToken,
 	);
@@ -62,48 +58,43 @@ export const refreshAccessToken = async (refreshToken: string) => {
 		throw error;
 	}
 
-	// =============================== REMOVE OLD TOKEN
-	await User.findByIdAndUpdate(user._id, {
-		$pull: {
-			refreshTokens: {
-				token: hashedOldToken,
-			},
-		},
-	});
+	// =============================== REMOVE OLD TOKEN (SAFE MONGOOSE MUTATION)
+	for (let i = user.refreshTokens.length - 1; i >= 0; i--) {
+		if (user.refreshTokens[i].token === hashedOldToken) {
+			user.refreshTokens.splice(i, 1);
+		}
+	}
 
 	// =============================== GENERATE NEW TOKENS
-	const newAccessToken = generateAccessToken({
-		id: toId(user._id),
+	const userId = toId(user._id);
+
+	const accessToken = generateAccessToken({
+		id: userId,
 		role: user.role,
 		tokenVersion: user.tokenVersion,
 	});
 
 	const newRefreshToken = generateRefreshToken({
-		id: toId(user._id),
+		id: userId,
 		tokenVersion: user.tokenVersion,
 	});
 
 	const hashedNewToken = hashToken(newRefreshToken);
 
-	// =============================== SAVE NEW TOKEN
-	const updatedUser = await User.findById(user._id);
-
-	if (!updatedUser) {
-		const error = new Error("User lost during refresh");
-		throw error;
-	}
-
-	updatedUser.refreshTokens.push({
+	// =============================== STORE NEW TOKEN
+	user.refreshTokens.push({
 		token: hashedNewToken,
 		expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-	});
+	} as any);
 
-	await updatedUser.save();
+	// IMPORTANT for Mongoose arrays
+	user.markModified("refreshTokens");
 
+	await user.save();
+
+	// =============================== RESPONSE
 	return {
-		data: {
-			accessToken: newAccessToken,
-			refreshToken: newRefreshToken,
-		},
+		accessToken,
+		refreshToken: newRefreshToken,
 	};
 };

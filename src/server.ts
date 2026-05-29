@@ -1,6 +1,5 @@
 // =============================== ENTRY POINT SERVER + SOCKET
 // src/server.ts
-
 // ===============================
 import app from "./app.js";
 import dotenv from "dotenv";
