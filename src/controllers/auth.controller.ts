@@ -1,6 +1,6 @@
-// =============================== AUTH CONTROLLER
+// ===================================== AUTH CONTROLLER
 // src/controllers/auth.controller.ts
-// ===============================
+// =====================================
 import type { Request, Response, NextFunction } from "express";
 import {
 	registerUser,
@@ -13,7 +13,7 @@ import { sendSuccess } from "../utils/response.js";
 import { getIO } from "../socket/index.js";
 import User from "../models/User.js";
 
-// =============================== REGISTER
+// ===================================== REGISTER
 export const register = async (
 	req: Request,
 	res: Response,
@@ -37,7 +37,7 @@ export const register = async (
 	}
 };
 
-// =============================== LOGIN
+// ===================================== LOGIN (FIXED COOKIE)
 export const login = async (
 	req: Request,
 	res: Response,
@@ -48,12 +48,13 @@ export const login = async (
 
 		const result = await loginUser(email, password);
 
-		// set refresh cookie (ROTATION BASED)
+		// ===================================== REFRESH TOKEN COOKIE
+		// =====================================
 		res.cookie("refreshToken", result.data.refreshToken, {
 			httpOnly: true,
 			secure: true,
-			sameSite: "lax",
-			path: "/api/auth/refresh",
+			sameSite: "none",
+			path: "/",
 		});
 
 		return res.json({
@@ -67,7 +68,7 @@ export const login = async (
 	}
 };
 
-// =============================== FORGOT PASSWORD
+// ===================================== FORGOT PASSWORD
 export const forgotPassword = async (
 	req: Request,
 	res: Response,
@@ -84,7 +85,7 @@ export const forgotPassword = async (
 	}
 };
 
-// =============================== RESET PASSWORD
+// ===================================== RESET PASSWORD
 export const resetPasswordController = async (
 	req: Request,
 	res: Response,
@@ -101,7 +102,7 @@ export const resetPasswordController = async (
 	}
 };
 
-// =============================== LOGOUT
+// ===================================== LOGOUT (COOKIE FIXED)
 export const logout = async (
 	req: Request,
 	res: Response,
@@ -114,8 +115,9 @@ export const logout = async (
 
 		getIO().to(userId).emit("auth:logout");
 
+		// clear cookie properly
 		res.clearCookie("refreshToken", {
-			path: "/api/auth/refresh",
+			path: "/",
 		});
 
 		return res.json({ success: true });
@@ -124,7 +126,7 @@ export const logout = async (
 	}
 };
 
-// =============================== CHECK EMAIL
+// ===================================== CHECK EMAIL
 export const checkEmail = async (req: Request, res: Response) => {
 	const email = req.query.email as string;
 
