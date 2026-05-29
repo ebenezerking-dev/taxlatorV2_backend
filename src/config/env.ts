@@ -13,7 +13,7 @@ export const env = {
 	MONGO_URI: process.env.MONGO_URI!,
 
 	JWT_SECRET: process.env.JWT_SECRET!,
-	REFRESH_SECRET: process.env.REFRESH_SECRET!,
+	JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET!,
 
 	ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS!,
 	FRONTEND_URL: process.env.FRONTEND_URL!,

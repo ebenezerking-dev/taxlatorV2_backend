@@ -1,6 +1,5 @@
 // =============================== MONGODB DATABASE CONFIG
 // src/config/db.ts
-
 // ===============================
 import mongoose from "mongoose";
 
