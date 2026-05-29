@@ -1,20 +1,25 @@
 // =============================== ROUTES INDEX
 // src/routes/index.ts
-
 // ===============================
 import { Router } from "express";
+
 import authRoutes from "./auth.routes.js";
 import userRoutes from "./user.routes.js";
+import refreshRoutes from "./refresh.routes.js";
 import taxRoutes from "./tax.routes.js";
 import analyticsRoutes from "./analytics.routes.js";
 import adminRoutes from "./admin.routes.js";
 import healthRoutes from "./health.routes.js";
 import dashboardRoutes from "./dashboard.routes.js";
 
+// ===============================
 const router = Router();
 
 // =============================== AUTH
 router.use("/auth", authRoutes);
+
+// =============================== REFRESH
+router.use("/auth", refreshRoutes);
 
 // =============================== USER
 router.use("/user", userRoutes);

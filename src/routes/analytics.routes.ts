@@ -1,4 +1,4 @@
-// =============================== ROUTES ANALYTICS
+// =============================== ANALYTICS ROUTES
 // src/routes/analytics.routes.ts
 
 // ===============================

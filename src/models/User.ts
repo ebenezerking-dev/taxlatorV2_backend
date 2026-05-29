@@ -1,5 +1,5 @@
 // =============================== USER
-// src/modals/User.ts
+// src/models/User.ts
 
 // ===============================
 import mongoose from "mongoose";
