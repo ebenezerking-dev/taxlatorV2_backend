@@ -37,7 +37,7 @@ export const register = async (
 	}
 };
 
-// ===================================== LOGIN (FIXED COOKIE)
+// ===================================== LOGIN
 export const login = async (
 	req: Request,
 	res: Response,
@@ -47,6 +47,10 @@ export const login = async (
 		const { email, password } = req.body;
 
 		const result = await loginUser(email, password);
+		console.log("LOGIN BODY:", req.body);
+
+		console.log("LOGIN START");
+		console.log("EMAIL:", email);
 
 		// ===================================== REFRESH TOKEN COOKIE
 		// =====================================
@@ -64,6 +68,9 @@ export const login = async (
 			},
 		});
 	} catch (err) {
+		console.error("LOGIN CONTROLLER ERROR:");
+		console.error(err);
+
 		next(err);
 	}
 };
@@ -102,7 +109,7 @@ export const resetPasswordController = async (
 	}
 };
 
-// ===================================== LOGOUT (COOKIE FIXED)
+// ===================================== LOGOUT
 export const logout = async (
 	req: Request,
 	res: Response,
@@ -115,7 +122,6 @@ export const logout = async (
 
 		getIO().to(userId).emit("auth:logout");
 
-		// clear cookie properly
 		res.clearCookie("refreshToken", {
 			path: "/",
 		});
@@ -130,7 +136,11 @@ export const logout = async (
 export const checkEmail = async (req: Request, res: Response) => {
 	const email = req.query.email as string;
 
+	console.log("EMAIL:", email);
+
 	const user = await User.findOne({ email });
+
+	console.log("USER FOUND:", !!user);
 
 	return res.json({
 		success: true,
