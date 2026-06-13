@@ -45,12 +45,7 @@ export const login = async (
 ) => {
 	try {
 		const { email, password } = req.body;
-
 		const result = await loginUser(email, password);
-		console.log("LOGIN BODY:", req.body);
-
-		console.log("LOGIN START");
-		console.log("EMAIL:", email);
 
 		// ===================================== REFRESH TOKEN COOKIE
 		// =====================================
@@ -68,9 +63,6 @@ export const login = async (
 			},
 		});
 	} catch (err) {
-		console.error("LOGIN CONTROLLER ERROR:");
-		console.error(err);
-
 		next(err);
 	}
 };
